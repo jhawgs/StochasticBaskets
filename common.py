@@ -46,13 +46,11 @@ class Bracket:
         return all([i1 == x1 for i1, x1 in zip(self.teams, x.teams)]) and self._next_level == x._next_level
 
     def __str__(self) -> str:
-        return "".join([str(i) for i in self.teams]) + "\n" + (str(self._next_level) if self._next_level is not None else "")
+        return " ".join([str(i) for i in self.teams]) + "\n" + (str(self._next_level) if self._next_level is not None else "")
     
     def score(self) -> float:
         if self.depth == 0:
             return 1.
-        print(self.teams)
-        print([(n, winner) for n, winner in enumerate(self._next_level.teams)])
         return prod([self.W[winner, (t := self.teams[n*2: n*2 + 2])[not t.index(winner)]] for n, winner in enumerate(self._next_level.teams)]) * self._next_level.score()
     
     def _recursive_apply_transpose(self, old_winner, candidate1, candidate2):
