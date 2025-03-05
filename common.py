@@ -1,5 +1,6 @@
 from typing import Callable
 from functools import cache
+from copy import copy
 from math import prod, log2
 from random import choice
 
@@ -28,14 +29,40 @@ class Bracket:
             self._next_level = None
         self.games = [g for i in range(depth) for g in [{"depth": i + 1, "idx": n} for n in range(int(2 ** i))]]
     
+    def __copy__(self):
+        cls = self.__class__
+        result = cls.__new__(cls)
+        result.__dict__.update(self.__dict__)
+        result._next_level = copy(result._next_level)
+        return result
+    
+    def __eq__(self, x) -> bool:
+        if type(x) != Bracket:
+            return False
+        return all([i1 == x1 for i1, x1 in zip(self.teams, x.teams)]) and self._next_level == x._next_level
+
     def score(self) -> float:
         if self.depth == 0:
             return 1.
+        print(self.teams)
+        print([(n, winner) for n, winner in enumerate(self._next_level.teams)])
         return prod([self.W[winner, (t := self.teams[n*2: n*2 + 2])[not t.index(winner)]] for n, winner in enumerate(self._next_level.teams)]) * self._next_level.score()
+    
+    def _recursive_apply_transpose(self, old_winner, candidate1, candidate2):
+        new_winner = choice((candidate1, candidate2))
+        if old_winner in self.teams:
+            idx = self.teams.index(old_winner)
+            self.teams[idx] = new_winner
+            if self._next_level is not None:
+                gs = idx//2
+                self._next_level._recursive_apply_transpose(old_winner, *self.teams[2*gs: 2*gs + 2])
     
     def transpose_game(self, idx: int):
         game = self.teams[idx*2: idx*2 + 2]
-        self._next_level.teams[idx] = game[not game.index(self._next_level.teams[idx])]
+        old_winner = self._next_level.teams[idx]
+        new_winner = game[not game.index(old_winner)]
+        self._next_level._recursive_apply_transpose(old_winner, new_winner, new_winner)
+
     
     def random_transpose(self):
         game = choice(self.games)
