@@ -6,3 +6,5 @@ if __name__ == "__main__":
     mh = MetropolisHastingsBracket(teams, seed_based_prob)
     X = mh.run()
     print(*X[-10:], sep="\n\n")
+    print()
+    print(mh.compute_mode())

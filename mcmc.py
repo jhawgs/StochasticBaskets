@@ -28,6 +28,19 @@ class MetropolisHastingsBracket:
                 self._run_iter()
         return self.X
     
+    def compute_mode(self) -> Bracket:
+        unique = []
+        counts = []
+        for b in self.X:
+            for n, _b in enumerate(unique):
+                if b == _b:
+                    counts[n] += 1
+                    break
+            else:
+                unique.append(b)
+                counts.append(1)
+        return unique[np.argmax(counts)]
+    
     @classmethod
     def accept(cls, i: Bracket, j: Bracket):
         p = j.score()/i.score()
