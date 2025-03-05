@@ -5,8 +5,12 @@ from math import prod, log2
 from random import choice
 
 class Team:
-    def __init__(self, seed):
+    def __init__(self, name, seed):
+        self.name = name
         self.seed = seed
+    
+    def __str__(self) -> str:
+        return self.name
 
 class WinMatrix:
     def __init__(self, prob_func: Callable[[Team, Team], float]):
@@ -41,6 +45,9 @@ class Bracket:
             return False
         return all([i1 == x1 for i1, x1 in zip(self.teams, x.teams)]) and self._next_level == x._next_level
 
+    def __str__(self) -> str:
+        return "".join([str(i) for i in self.teams]) + "\n" + (str(self._next_level) if self._next_level is not None else "")
+    
     def score(self) -> float:
         if self.depth == 0:
             return 1.
@@ -80,4 +87,4 @@ class Bracket:
         _teams = [teams]
         while len(_teams[-1]) > 1:
             _teams.append([choice(_teams[-1][n*2:n*2+2]) for n in range(int(len(_teams[-1])/2))])
-        return cls(depth, _teams, win_matrix)
+        return cls(depth, _teams, win_matrix) 

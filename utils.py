@@ -2,10 +2,10 @@ from common import Team, WinMatrix
 
 def four_team_set() -> list[Team]:
     return [
-        Team(1),
-        Team(4),
-        Team(2),
-        Team(3),
+        Team("Team 1", 1),
+        Team("Team 4", 4),
+        Team("Team 2", 2),
+        Team("Team 3", 3),
     ]
 
 def seed_based_prob(x1: Team, x2: Team) -> float:
