@@ -1,6 +1,7 @@
 from typing import Callable
 from functools import cache
-from math import prod
+from math import prod, log2
+from random import randint
 
 class Team:
     def __init__(self, seed):
@@ -30,4 +31,13 @@ class Bracket:
     def score(self) -> float:
         if self.depth == 0:
             return 1.
-        return prod([self.W[winner, (t := self.teams[n*2: n*2 + 1])[not t.index(winner)]] for n, winner in enumerate(self.next_level.teams)]) * self.next_level.score()
+        return prod([self.W[winner, (t := self.teams[n*2: n*2 + 2])[not t.index(winner)]] for n, winner in enumerate(self.next_level.teams)]) * self.next_level.score()
+    
+    @classmethod
+    def RandomBracket(teams: list[Team], win_matrix: WinMatrix):
+        depth = log2(len(teams))
+        assert 2 ** depth == len(teams), "arg `teams` must have a length of a power 2 but has length {}".format(len(teams))
+        _teams = [teams]
+        while len(_teams[-1]) > 1:
+            _teams.append([_teams[-1][n*2:n*2+2][randint(0, 1)] for n in range(int(len(teams)/2))])
+        return Bracket(depth, teams, win_matrix)
