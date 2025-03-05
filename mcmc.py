@@ -29,17 +29,16 @@ class MetropolisHastingsBracket:
         return self.X
     
     def compute_mode(self) -> Bracket:
-        unique = []
-        counts = []
-        for b in self.X:
-            for n, _b in enumerate(unique):
-                if b == _b:
-                    counts[n] += 1
-                    break
+        mp = {}
+        _c = {}
+        for x in self.X:
+            h = hash(x)
+            if h in mp:
+                _c[h] += 1
             else:
-                unique.append(b)
-                counts.append(1)
-        return unique[np.argmax(counts)]
+                mp[h] = x
+                _c[h] = 1
+        return mp[list(_c.keys())[np.argmax(list(_c.values()))]]
     
     @classmethod
     def accept(cls, i: Bracket, j: Bracket):

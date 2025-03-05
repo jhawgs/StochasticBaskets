@@ -1,13 +1,14 @@
-from typing import Callable
+from typing import Callable, Optional
 from functools import cache
 from copy import copy
 from math import prod, log2
 from random import choice
 
 class Team:
-    def __init__(self, name, seed):
+    def __init__(self, name: str, seed: int, id: Optional[str] = None):
         self.name = name
         self.seed = seed
+        self.id = id or name
     
     def __str__(self) -> str:
         return self.name
@@ -49,6 +50,14 @@ class Bracket:
     def __str__(self) -> str:
         return " ".join([str(i) for i in self.teams]) + ("\n" + str(self._next_level) if self._next_level is not None else "")
     
+    def __hash__(self):
+        return hash(tuple(self.recursive_teams()))
+    
+    def recursive_teams(self) -> list[Team]:
+        if self._next_level is None:
+            return self.teams
+        return self.teams + self._next_level.recursive_teams()
+    
     def score(self) -> float:
         if self.depth == 0:
             return 1.
@@ -69,7 +78,6 @@ class Bracket:
         old_winner = self._next_level.teams[idx]
         new_winner = game[not game.index(old_winner)]
         self._next_level._recursive_apply_transpose(old_winner, new_winner, new_winner)
-
     
     def random_transpose(self):
         game = choice(self.games)
