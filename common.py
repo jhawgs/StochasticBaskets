@@ -38,6 +38,7 @@ class Bracket:
         result = cls.__new__(cls)
         result.__dict__.update(self.__dict__)
         result._next_level = copy(result._next_level)
+        result.teams = copy(result.teams)
         return result
     
     def __eq__(self, x) -> bool:
@@ -46,7 +47,7 @@ class Bracket:
         return all([i1 == x1 for i1, x1 in zip(self.teams, x.teams)]) and self._next_level == x._next_level
 
     def __str__(self) -> str:
-        return " ".join([str(i) for i in self.teams]) + "\n" + (str(self._next_level) if self._next_level is not None else "")
+        return " ".join([str(i) for i in self.teams]) + ("\n" + str(self._next_level) if self._next_level is not None else "")
     
     def score(self) -> float:
         if self.depth == 0:
@@ -57,7 +58,8 @@ class Bracket:
         new_winner = choice((candidate1, candidate2))
         if old_winner in self.teams:
             idx = self.teams.index(old_winner)
-            self.teams[idx] = new_winner
+            self.teams.remove(old_winner)
+            self.teams.insert(idx, new_winner)
             if self._next_level is not None:
                 gs = idx//2
                 self._next_level._recursive_apply_transpose(old_winner, *self.teams[2*gs: 2*gs + 2])
