@@ -20,6 +20,26 @@ def eight_team_set() -> list[Team]:
         Team("Team 7", 7),
     ]
 
+def sixteen_team_set() -> list[Team]:
+    return [
+        Team("Team 1", 1),
+        Team("Team 16", 16),
+        Team("Team 8", 8),
+        Team("Team 9", 9),
+        Team("Team 4", 4),
+        Team("Team 13", 13),
+        Team("Team 12", 12),
+        Team("Team 5", 5),
+        Team("Team 6", 6),
+        Team("Team 11", 11),
+        Team("Team 3", 3),
+        Team("Team 14", 14),
+        Team("Team 7", 7),
+        Team("Team 10", 10),
+        Team("Team 2", 2),
+        Team("Team 15", 7),
+    ]
+
 def seed_based_prob(x1: Team, x2: Team) -> float:
     return 1. - (x1.seed)/(x1.seed + x2.seed)
 
