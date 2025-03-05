@@ -19,12 +19,14 @@ class WinMatrix:
 class Bracket:
     def __init__(self, depth: int, teams: list[list[Team]], win_matrix: WinMatrix):
         self.depth = depth
-        assert len(teams) == 2 ** depth, "type `Bracket` must recieve 2 ** depth ({}) teams at index 0 of arg `teams` but received {} instead".format(2 ** depth, len(teams))
+        self.W = win_matrix
+        assert len(teams[0]) == 2 ** depth, "type `Bracket` must recieve 2 ** depth ({}) teams at index 0 of arg `teams` but received {} instead".format(2 ** depth, len(teams[0]))
         self.teams = teams[0]
         if self.depth >= 1:
-            self._next_level = Bracket(depth - 1, teams[1:])
-        self.W = win_matrix
-        self.games = [g for i in range(depth) for g in [{"depth": i + 1, "idx": n} for n in range(2 ** i)]]
+            self._next_level = Bracket(depth - 1, teams[1:], self.W)
+        else:
+            self._next_level = None
+        self.games = [g for i in range(depth) for g in [{"depth": i + 1, "idx": n} for n in range(int(2 ** i))]]
     
     def score(self) -> float:
         if self.depth == 0:
@@ -42,12 +44,13 @@ class Bracket:
             level = level._next_level
         assert level.depth == game["depth"], "failed to find level with depth {}, `Bracket` object is malformed".format(game["depth"])
         level.transpose_game(game["idx"])
+        return self
     
     @classmethod
     def RandomBracket(cls, teams: list[Team], win_matrix: WinMatrix):
-        depth = log2(len(teams))
+        depth = int(log2(len(teams)))
         assert 2 ** depth == len(teams), "arg `teams` must have a length of a power 2 but has length {}".format(len(teams))
         _teams = [teams]
         while len(_teams[-1]) > 1:
-            _teams.append([choice(_teams[-1][n*2:n*2+2]) for n in range(int(len(teams)/2))])
-        return cls(depth, teams, win_matrix)
+            _teams.append([choice(_teams[-1][n*2:n*2+2]) for n in range(int(len(_teams[-1])/2))])
+        return cls(depth, _teams, win_matrix)
