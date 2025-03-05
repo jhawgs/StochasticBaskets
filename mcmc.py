@@ -1,5 +1,5 @@
 from typing import Callable
-from copy import deepcopy
+from copy import copy
 
 import numpy as np
 from tqdm import tqdm
@@ -16,13 +16,13 @@ class MetropolisHastingsBracket:
     
     def _run_iter(self):
         b = self.X[-1]
-        self.X.append(MetropolisHastingsBracket.accept(deepcopy(b), deepcopy(b).random_transpose()))
+        self.X.append(MetropolisHastingsBracket.accept(copy(b), copy(b).random_transpose()))
     
     def run(self, iters: int = 1000, verbose: bool = True):
         if verbose:
             for _ in (pbar := tqdm(range(iters))):
                 self._run_iter()
-                pbar.set_description_str(" - score: {}".format(self.X[-1].score()))
+                pbar.set_description_str("score: {}".format(self.X[-1].score()))
         else:
             for _ in range(iters):
                 self._run_iter()
