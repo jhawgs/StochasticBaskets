@@ -1,7 +1,7 @@
 from typing import Callable
 from functools import cache
 from math import prod, log2
-from random import randint
+from random import choice
 
 class Team:
     def __init__(self, seed):
@@ -20,18 +20,31 @@ def seed_prob(x1: Team, x2: Team) -> float:
     return 1. - (x1.seed)/(x1.seed + x2.seed)
 
 class Bracket:
-    def __init__(self, depth: int, teams: list[Team], win_matrix: WinMatrix):
+    def __init__(self, depth: int, teams: list[list[Team]], win_matrix: WinMatrix):
         self.depth = depth
         assert len(teams) == 2 ** depth, "type `Bracket` must recieve 2 ** depth ({}) teams at index 0 of arg `teams` but received {} instead".format(2 ** depth, len(teams))
         self.teams = teams[0]
         if self.depth >= 1:
-            self.next_level = Bracket(depth - 1, teams[1:])
+            self._next_level = Bracket(depth - 1, teams[1:])
         self.W = win_matrix
+        self.games = [g for i in range(depth) for g in [{"depth": i + 1, "idx": n} for n in range(2 ** i)]]
     
     def score(self) -> float:
         if self.depth == 0:
             return 1.
-        return prod([self.W[winner, (t := self.teams[n*2: n*2 + 2])[not t.index(winner)]] for n, winner in enumerate(self.next_level.teams)]) * self.next_level.score()
+        return prod([self.W[winner, (t := self.teams[n*2: n*2 + 2])[not t.index(winner)]] for n, winner in enumerate(self._next_level.teams)]) * self._next_level.score()
+    
+    def transpose_game(self, idx: int):
+        game = self.teams[idx*2: idx*2 + 2]
+        self._next_level.teams[idx] = game[not game.index(self._next_level.teams[idx])]
+    
+    def random_transpose(self):
+        game = choice(self.games)
+        level = self
+        while level.depth > game["depth"]:
+            level = level._next_level
+        assert level.depth == game["depth"], "failed to find level with depth {}, `Bracket` object is malformed".format(game["depth"])
+        level.transpose_game(game["idx"])
     
     @classmethod
     def RandomBracket(teams: list[Team], win_matrix: WinMatrix):
@@ -39,5 +52,5 @@ class Bracket:
         assert 2 ** depth == len(teams), "arg `teams` must have a length of a power 2 but has length {}".format(len(teams))
         _teams = [teams]
         while len(_teams[-1]) > 1:
-            _teams.append([_teams[-1][n*2:n*2+2][randint(0, 1)] for n in range(int(len(teams)/2))])
+            _teams.append([choice(_teams[-1][n*2:n*2+2]) for n in range(int(len(teams)/2))])
         return Bracket(depth, teams, win_matrix)
