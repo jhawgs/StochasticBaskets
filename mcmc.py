@@ -28,10 +28,10 @@ class MetropolisHastingsBracket:
                 self._run_iter()
         return self.X
     
-    def compute_mode(self) -> Bracket:
+    def compute_mode(self, burnin: int = 0) -> Bracket:
         mp = {}
         _c = {}
-        for x in self.X:
+        for x in self.X[burnin:]:
             h = hash(x)
             if h in mp:
                 _c[h] += 1
