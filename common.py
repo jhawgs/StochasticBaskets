@@ -16,9 +16,6 @@ class WinMatrix:
         x1, x2 = x
         return self.prob_func(x1, x2)
 
-def seed_prob(x1: Team, x2: Team) -> float:
-    return 1. - (x1.seed)/(x1.seed + x2.seed)
-
 class Bracket:
     def __init__(self, depth: int, teams: list[list[Team]], win_matrix: WinMatrix):
         self.depth = depth

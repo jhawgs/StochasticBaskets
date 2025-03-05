@@ -1,0 +1,15 @@
+from common import Team, WinMatrix
+
+def four_team_set() -> list[Team]:
+    return [
+        Team(1),
+        Team(4),
+        Team(2),
+        Team(3),
+    ]
+
+def seed_based_prob(x1: Team, x2: Team) -> float:
+    return 1. - (x1.seed)/(x1.seed + x2.seed)
+
+def seed_based_W() -> WinMatrix:
+    return WinMatrix(seed_based_prob)
