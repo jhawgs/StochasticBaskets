@@ -29,6 +29,6 @@ class MetropolisHastingsBracket:
         return self.X
     
     @classmethod
-    def accept(i: Bracket, j: Bracket):
+    def accept(cls, i: Bracket, j: Bracket):
         p = j.score()/i.score()
         return np.random.choice((j, i), p=(p, 1-p))
