@@ -7,6 +7,10 @@ import pandas as pd
 from pickle import load, dump
 
 data = pd.read_csv("./fulltenyears.csv")
+data = pd.concat((data, data.rename({c: c.replace(c[-1], "1" if c[-1] == "0" else "0") for c in data.columns}, axis=1))).drop(["Unnamed: 0", "Unnamed: 1"], axis=1)
+data["favwin01"] = pd.concat((data["favwin01"].dropna(), (~data["favwin00"].dropna().astype(bool)).astype("float")))
+data["_constant"] = 1
+
 if isfile("./keys.txt"):
   keys = eval(open("keys.txt", "r").read())
 
