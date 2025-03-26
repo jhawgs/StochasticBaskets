@@ -1,8 +1,8 @@
-from utils import seed_based_prob, sixtyfour_team_set
+from utils import make_prob_func, bracket_0
 from mcmc import MetropolisHastingsBracket
 
 if __name__ == "__main__":
-    teams = sixtyfour_team_set()
-    mh = MetropolisHastingsBracket(teams, seed_based_prob)
+    teams = bracket_0()
+    mh = MetropolisHastingsBracket(teams, make_prob_func())
     X = mh.run(5000)
     print(mh.compute_mode())
