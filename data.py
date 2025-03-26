@@ -376,8 +376,10 @@ if __name__ == "__main__":
     with open("./lr.pkl", "rb") as doc:
         lr = load(doc)
     print(lr.predict_proba([wrap_build("Gonzaga", "Kansas")]))
+    print(lr.predict_proba([wrap_build("Kansas", "Gonzaga")]))
     print(lr.predict_proba([wrap_build("Kansas", "Abilene Christian")]))
     with open("./rfc.pkl", "rb") as doc:
         rfc = load(doc)
     print(rfc.predict_proba([wrap_build("Gonzaga", "Kansas")]))
+    print(rfc.predict_proba([wrap_build("Kansas", "Gonzaga")]))
     print(rfc.predict_proba([wrap_build("Kansas", "Abilene Christian")]))
