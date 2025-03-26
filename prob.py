@@ -35,7 +35,7 @@ def load_model(rfc=True):
 def make_prob_func(rfc=True):
     m = load_model(rfc=rfc)
     def f(x1, x2):
-        m(wrap_build(x1, x2))
+        m(wrap_build(x1, x2))[0][1]
     return f
 
 if __name__ == "__main__":
