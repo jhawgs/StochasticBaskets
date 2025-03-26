@@ -41,7 +41,7 @@ class MetropolisHastingsBracket:
         return mp[list(_c.keys())[np.argmax(list(_c.values()))]]
     
     @classmethod
-    def accept(cls, i: Bracket, j: Bracket, extremity: float = 100):
+    def accept(cls, i: Bracket, j: Bracket, extremity: float = 1):
         p = (j.score()/i.score()) ** extremity
         if p >= 1:
             return j
