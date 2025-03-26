@@ -1,10 +1,11 @@
 from os.path import isfile
+from pickle import load, dump
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 import pandas as pd
 
-from pickle import load, dump
+from data import wrap_build
 
 data = pd.read_csv("./fulltenyears.csv")
 data = pd.concat((data, data.rename({c: c.replace(c[-1], "1" if c[-1] == "0" else "0") for c in data.columns}, axis=1))).drop(["Unnamed: 0", "Unnamed: 1"], axis=1)
@@ -30,6 +31,12 @@ def load_model(rfc=True):
     else:
         with open("./lr.pkl", "rb") as doc:
             return load(doc)
+
+def make_prob_func(rfc=True):
+    m = load_model(rfc=rfc)
+    def f(x1, x2):
+        m(wrap_build(x1, x2))
+    return f
 
 if __name__ == "__main__":
     fit_models()
