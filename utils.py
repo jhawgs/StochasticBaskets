@@ -1,4 +1,5 @@
 from common import Team, WinMatrix
+from prob import make_prob_func
 
 def four_team_set() -> list[Team]:
     return [
@@ -48,3 +49,6 @@ def seed_based_prob(x1: Team, x2: Team) -> float:
 
 def seed_based_W() -> WinMatrix:
     return WinMatrix(seed_based_prob)
+
+def rfc_W() -> WinMatrix:
+    return WinMatrix(make_prob_func())
