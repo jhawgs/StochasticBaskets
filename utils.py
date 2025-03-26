@@ -52,3 +52,23 @@ def seed_based_W() -> WinMatrix:
 
 def rfc_W() -> WinMatrix:
     return WinMatrix(make_prob_func())
+
+def bracket_0() -> list[Team]:
+    return [
+    Team("Alabama", 1), Team("Texas A&M-Corpus Christi", 16), Team("Maryland", 8), Team("West Virginia", 9),
+    Team("San Diego State", 5), Team("College of Charleston", 12), Team("Virginia", 4), Team("Furman", 13),
+    Team("Creighton", 6), Team("NC State", 11), Team("Baylor", 3), Team("UC Santa Barbara", 14),
+    Team("Missouri", 7), Team("Utah State", 10), Team("Arizona", 2), Team("Princeton", 15),
+    Team("Purdue", 1), Team("Texas Southern", 16), Team("Memphis", 8), Team("Florida Atlantic", 9),
+    Team("Duke", 5), Team("Oral Roberts", 12), Team("Tennessee", 4), Team("Louisiana", 13),
+    Team("Kentucky", 6), Team("Providence", 11), Team("Kansas State", 3), Team("Montana State", 14),
+    Team("Michigan State", 7), Team("Southern California", 10), Team("Marquette", 2), Team("Vermont", 15),
+    Team("Houston", 1), Team("Northern Kentucky", 16), Team("Iowa", 8), Team("Auburn", 9),
+    Team("Miami (FL)", 5), Team("Drake", 12), Team("Indiana", 4), Team("Kent State", 13),
+    Team("Iowa State", 6), Team("Mississippi State", 11), Team("Xavier", 3), Team("Kennesaw State", 14),
+    Team("Texas A&M", 7), Team("Penn State", 10), Team("Texas", 2), Team("Colgate", 15),
+    Team("Kansas", 1), Team("Howard", 16), Team("Arkansas", 8), Team("Illinois", 9),
+    Team("Saint Mary's (CA)", 5), Team("Virginia Commonwealth", 12), Team("Connecticut", 4), Team("Iona", 13),
+    Team("TCU", 6), Team("Nevada", 11), Team("Gonzaga", 3), Team("Grand Canyon", 14),
+    Team("Northwestern", 7), Team("Boise State", 10), Team("UCLA", 2), Team("UNC Asheville", 15)
+]
