@@ -3,6 +3,6 @@ from mcmc import MetropolisHastingsBracket
 
 if __name__ == "__main__":
     teams = bracket_0()
-    mh = MetropolisHastingsBracket(teams, make_prob_func(), False)
+    mh = MetropolisHastingsBracket(teams, make_prob_func(True), True)
     X = mh.run(1000)
-    print(mh.compute_mode())
+    print(mh.X[-1])

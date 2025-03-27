@@ -38,12 +38,12 @@ class MetropolisHastingsBracket:
                     self._run_iter()
         else:
             if verbose:
-                while self.T > self.T_min:
+                for _ in (pbar := tqdm(range(iters))):
                     self._run_iter()
                     self.T = self.alpha * self.T
-                    print(self.X[-1].score())
+                    pbar.set_description_str("score: {}".format(self.X[-1].score()))
             else:
-                while self.T > self.T_min:
+                for _ in range(iters):
                     self._run_iter()
                     self.T = self.alpha * self.T
         return self.X
@@ -74,7 +74,7 @@ class MetropolisHastingsBracket:
             return j
         else: #Otherwise send j with high temps and don't with low temps
             u = np.random.uniform(0, 1, 1)[0]
-            print(f"Move to worse prob: {math.exp(delta/T)}")
+            #print(f"Move to worse prob: {math.exp(delta/T)}")
             if u < math.exp(delta/T):
                 return j
             else:
