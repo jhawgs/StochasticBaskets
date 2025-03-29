@@ -62,14 +62,14 @@ class MetropolisHastingsBracket:
         return mp[list(_c.keys())[np.argmax(list(_c.values()))]]
     
     @classmethod
-    def accept(cls, i: Bracket, j: Bracket, extremity: float = 1):
+    def accept(cls, i: Bracket, j: Bracket, extremity: float = 1) -> Bracket:
         p = (j.score()/i.score()) ** extremity
         if p >= 1:
             return j
         return np.random.choice((j, i), p=(p, 1-p))
 
     @classmethod
-    def anneal_accept(cls, i: Bracket, j: Bracket, T: float):
+    def anneal_accept(cls, i: Bracket, j: Bracket, T: float) -> Bracket:
         delta = (j.score() - i.score())*1e20
         if delta > 0: #If j is better just send it
             return j
