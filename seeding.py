@@ -40,12 +40,13 @@ class Seeding:
         return expected_outcomes
     
     def random_transpose(self):
-        idx1 = sample(len(self.teams), 1)
-        idx2 = sample(len(self.teams), 1)
+        idx1 = sample(range(len(self.teams)), 1)[0]
+        idx2 = sample(range(len(self.teams)), 1)[0]
         t1 = self.teams[idx1]
         t2 = self.teams[idx2]
         self.teams[idx1] = t2
         self.teams[idx2] = t1
+        return self
     
     @classmethod
     def arrange(cls, teams: list[Team]) -> list[Team]:
