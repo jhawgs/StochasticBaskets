@@ -52,6 +52,10 @@ class Seeding:
         return [teams[bracket_idx_to_overall[i]] for i in range(64)]
     
     @classmethod
+    def inverse_arrange(cls, teams: list[Team]) -> list[Team]:
+        return [teams[{v: k for k, v in bracket_idx_to_overall.items()}[i]] for i in range(64)]
+    
+    @classmethod
     def RandomSeeding(cls, teams: list[Team]):
         return cls(sample(teams, len(teams)))
 
