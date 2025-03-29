@@ -1,4 +1,5 @@
 import sys
+import pickle
 
 if __name__ == "__main__":
     if sys.argv[1] == "bracket":
@@ -13,5 +14,7 @@ if __name__ == "__main__":
         from common import WinMatrix
         from seeding import MetropolisHastingsSeedings
         mh = MetropolisHastingsSeedings(bracket_0(), win_matrix=WinMatrix(make_prob_func()))
-        X = mh.run(1000)
+        X = mh.run(10000)
+        with open("./seeding_results.pkl", "wb") as doc:
+            pickle.dump(X, doc)
         print(mh.compute_mode())
