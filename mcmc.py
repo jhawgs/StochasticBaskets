@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Optional
 from copy import copy
 
 import numpy as np
@@ -8,10 +8,11 @@ import math
 from common import Team, Bracket, WinMatrix
 
 class MetropolisHastingsBracket:
-    def __init__(self, teams: list[Team], prob_func: Callable[[Team, Team], float], simulate_anneal: bool):
+    def __init__(self, teams: list[Team], prob_func: Optional[Callable[[Team, Team], float]] = None, win_matrix: Optional[WinMatrix] = None, simulate_anneal: bool = False):
         self.teams = teams
         self.prob_func = prob_func
-        self.W = WinMatrix(prob_func)
+        assert (prob_func is not None or win_matrix is not None) and not (prob_func is not None and win_matrix is not None)
+        self.W = win_matrix or WinMatrix(prob_func)
         self.seed: Bracket = Bracket.RandomBracket(self.teams, self.W)
         self.X: list[Bracket] = [self.seed]
         self.simulate_anneal = simulate_anneal
