@@ -56,8 +56,8 @@ class Seeding:
         return [teams[{v: k for k, v in bracket_idx_to_overall.items()}[i]] for i in range(64)]
     
     @classmethod
-    def RandomSeeding(cls, teams: list[Team]):
-        return cls(sample(teams, len(teams)))
+    def RandomSeeding(cls, teams: list[Team], win_matrix: WinMatrix):
+        return cls(sample(teams, len(teams)), win_matrix)
 
 class MetropolisHastingsSeedings:
     def __init__(self, teams: list[Team], win_matrix: WinMatrix):
