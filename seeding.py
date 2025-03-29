@@ -1,5 +1,6 @@
 from random import sample
 from copy import copy
+from math import exp
 
 import numpy as np
 from tqdm import tqdm
@@ -36,11 +37,13 @@ class Seeding:
         self.mlb = mhb.run(iters=iters, verbose=verbose)[-1]
         return self.mlb
     
-    def score(self, iters: int = 1000, verbose: bool = False) -> float:
+    def score(self, iters: int = 1000, verbose: bool = False, exponential_score: bool = False) -> float:
         if self._score is not None:
             return self._score
         matchups = self.find_maximimum_likelihood_bracket(iters=iters, verbose=verbose).build_matchups()
         expected_outcomes = len(list(filter(lambda x: min(self.seed[x[0]], self.seed[x[1]]) == self.seed[x[2]], matchups)))
+        if exponential_score:
+            expected_outcomes = exp(expected_outcomes)
         self._score = expected_outcomes
         return expected_outcomes
     
