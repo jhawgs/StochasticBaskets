@@ -36,7 +36,7 @@ class Seeding:
         self.mlb = mhb.run(iters=iters, verbose=verbose)[-1]
         return self.mlb
     
-    def score(self, iters: int = 1000, verbose: bool = True) -> float:
+    def score(self, iters: int = 1000, verbose: bool = False) -> float:
         if self._score is not None:
             return self._score
         matchups = self.find_maximimum_likelihood_bracket(iters=iters, verbose=verbose).build_matchups()
