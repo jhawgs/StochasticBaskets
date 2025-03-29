@@ -86,6 +86,11 @@ class Bracket:
         level.transpose_game(game["idx"])
         return self
     
+    def build_matchups(self) -> tuple[tuple[Team, Team, Team]]:
+        if self.depth == 0:
+            return tuple()
+        return tuple(zip(self.teams[::2], self.teams[1::2], self._next_level.teams)) + self._next_level.build_matchups()
+    
     @classmethod
     def RandomBracket(cls, teams: list[Team], win_matrix: WinMatrix):
         depth = int(log2(len(teams)))
