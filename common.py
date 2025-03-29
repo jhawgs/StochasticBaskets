@@ -93,4 +93,4 @@ class Bracket:
         _teams = [teams]
         while len(_teams[-1]) > 1:
             _teams.append([choice(_teams[-1][n*2:n*2+2]) for n in range(int(len(_teams[-1])/2))])
-        return cls(depth, _teams, win_matrix) 
+        return cls(depth, _teams, win_matrix)
