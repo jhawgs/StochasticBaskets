@@ -15,6 +15,7 @@ class Seeding:
         self.seed: dict[Team, int] = {t: n for n, t in enumerate(self.teams)}
         self.win_matrix = win_matrix
         self.mlb = None
+        self._score = None
     
     def __str__(self) -> str:
         return "\n".join(map(lambda x: "(" + str(1 + x[0]//4) + ") " + x[1].name, enumerate(self.teams)))
@@ -24,6 +25,7 @@ class Seeding:
         result = cls.__new__(cls)
         result.__dict__.update(self.__dict__)
         result.teams = copy(result.teams)
+        result._score = None
         return result
     
     def __hash__(self):
@@ -35,8 +37,11 @@ class Seeding:
         return self.mlb
     
     def score(self, iters: int = 1000, verbose: bool = True) -> float:
+        if self._score is not None:
+            return self._score
         matchups = self.find_maximimum_likelihood_bracket(iters=iters, verbose=verbose).build_matchups()
-        expected_outcomes = len(list(filter(lambda x: min(self.seed[x[0]], self.seed[x[1]]) == self.seed[x[3]], matchups)))
+        expected_outcomes = len(list(filter(lambda x: min(self.seed[x[0]], self.seed[x[1]]) == self.seed[x[2]], matchups)))
+        self._score = expected_outcomes
         return expected_outcomes
     
     def random_transpose(self):
@@ -94,7 +99,7 @@ class MetropolisHastingsSeedings:
         return mp[list(_c.keys())[np.argmax(list(_c.values()))]]
     
     @classmethod
-    def accept(cls, i: Bracket, j: Bracket, extremity: float = 1):
+    def accept(cls, i: Seeding, j: Seeding, extremity: float = 1) -> Seeding:
         p = (j.score()/i.score()) ** extremity
         if p >= 1:
             return j
