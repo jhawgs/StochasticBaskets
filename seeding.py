@@ -37,7 +37,7 @@ class Seeding:
         self.mlb = mhb.run(iters=iters, verbose=verbose)[-1]
         return self.mlb
     
-    def score(self, iters: int = 1000, verbose: bool = False, exponential_score: bool = False) -> float:
+    def score(self, iters: int = 1000, verbose: bool = False, exponential_score: bool = True) -> float:
         if self._score is not None:
             return self._score
         matchups = self.find_maximimum_likelihood_bracket(iters=iters, verbose=verbose).build_matchups()
@@ -57,7 +57,11 @@ class Seeding:
         return self
     
     def prepare_pickle(self):
-        return self.teams
+        if hasattr(self.win_matrix, "prob_func"):
+            del self.win_matrix.prob_func
+        if self.mlb is not None:
+            self.mlb.prepare_pickle()
+        return self
     
     @classmethod
     def arrange(cls, teams: list[Team]) -> list[Team]:

@@ -54,7 +54,11 @@ class Bracket:
         return hash(tuple(self.recursive_teams()))
     
     def prepare_pickle(self):
-        return self.teams
+        if hasattr(self.W, "prob_func"):
+            del self.W.prob_func
+        if self.depth is not None:
+            self._next_level.prepare_pickle()
+        return self
     
     def recursive_teams(self) -> list[Team]:
         if self._next_level is None:
