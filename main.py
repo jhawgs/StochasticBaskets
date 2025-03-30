@@ -16,5 +16,5 @@ if __name__ == "__main__":
         mh = MetropolisHastingsSeedings(bracket_0(), win_matrix=WinMatrix(make_prob_func()))
         X = mh.run(100000)
         with open("./seeding_results.pkl", "wb") as doc:
-            pickle.dump(X, doc)
+            pickle.dump([i.prepare_pickle() for i in X], doc)
         print(mh.compute_mode())
