@@ -56,6 +56,9 @@ class Seeding:
         self.teams[idx2] = t1
         return self
     
+    def prepare_pickle(self):
+        return self.teams
+    
     @classmethod
     def arrange(cls, teams: list[Team]) -> list[Team]:
         return [teams[bracket_idx_to_overall[i]] for i in range(64)]

@@ -53,6 +53,9 @@ class Bracket:
     def __hash__(self):
         return hash(tuple(self.recursive_teams()))
     
+    def prepare_pickle(self):
+        return self.teams
+    
     def recursive_teams(self) -> list[Team]:
         if self._next_level is None:
             return self.teams
