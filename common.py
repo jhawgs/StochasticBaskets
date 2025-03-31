@@ -56,7 +56,7 @@ class Bracket:
     def prepare_pickle(self):
         if hasattr(self.W, "prob_func"):
             del self.W.prob_func
-        if self.depth is not None:
+        if self._next_level is not None:
             self._next_level.prepare_pickle()
         return self
     
