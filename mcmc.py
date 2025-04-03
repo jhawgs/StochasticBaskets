@@ -17,8 +17,8 @@ class MetropolisHastingsBracket:
         self.X: list[Bracket] = [self.seed]
         self.simulate_anneal = simulate_anneal
         if self.simulate_anneal:
-            self.T = 100000
-            self.alpha = 0.9
+            self.T = 500000
+            self.alpha = 0.99
             self.T_min = 1
     
     def _run_iter(self):
@@ -28,7 +28,7 @@ class MetropolisHastingsBracket:
         else: #Simulated Annealing 
             self.X.append(MetropolisHastingsBracket.anneal_accept(copy(b), copy(b).random_transpose(), self.T))
     
-    def run(self, iters: int = 1000, verbose: bool = True):
+    def run(self, iters: int = 1500, verbose: bool = True):
         if not self.simulate_anneal:
             if verbose:
                 for _ in (pbar := tqdm(range(iters))):

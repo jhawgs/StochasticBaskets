@@ -37,7 +37,7 @@ class Seeding:
         self.mlb = mhb.run(iters=iters, verbose=verbose)[-1]
         return self.mlb
     
-    def score(self, iters: int = 1000, verbose: bool = False, exponential_score: bool = True) -> float:
+    def score(self, iters: int = 1500, verbose: bool = False, exponential_score: bool = True) -> float:
         if self._score is not None:
             return self._score
         matchups = self.find_maximimum_likelihood_bracket(iters=iters, verbose=verbose).build_matchups()
@@ -81,19 +81,25 @@ class MetropolisHastingsSeedings:
         self.W = win_matrix
         self.x0: Seeding = Seeding.RandomSeeding(self.teams, self.W)
         self.X: list[Seeding] = [self.x0]
+        self.T = 1000
+        self.alpha = 0.996
+        self.T_min = 1
     
-    def _run_iter(self):
+    def _run_iter(self, anneal: bool = False):
         b = self.X[-1]
-        self.X.append(MetropolisHastingsSeedings.accept(copy(b), copy(b).random_transpose()))
+        if anneal:
+            self.X.append(self.anneal_accept(copy(b), copy(b).random_transpose()))
+        else:
+            self.X.append(MetropolisHastingsSeedings.accept(copy(b), copy(b).random_transpose()))
     
-    def run(self, iters: int = 1000, verbose: bool = True):
+    def run(self, iters: int = 1000, verbose: bool = True, anneal: bool = False):
         if verbose:
             for _ in (pbar := tqdm(range(iters))):
-                self._run_iter()
+                self._run_iter(anneal=anneal)
                 pbar.set_description_str("score: {}".format(self.X[-1].score()))
         else:
             for _ in range(iters):
-                self._run_iter()
+                self._run_iter(anneal=anneal)
         return self.X
     
     def compute_mode(self, burnin: int = 0) -> Seeding:
@@ -108,6 +114,19 @@ class MetropolisHastingsSeedings:
                 _c[h] = 1
         return mp[list(_c.keys())[np.argmax(list(_c.values()))]]
     
+    def anneal_accept(self, i: Seeding, j: Seeding, extremity: float = 1) -> Seeding:
+        self.T = self.alpha * self.T
+        delta = (j.score(exponential_score=False) - i.score(exponential_score=False))*1e20#p = (j.score()/i.score()) ** extremity
+        if delta > 0: #If j is better just send it
+            return j
+        else: #Otherwise send j with high temps and don't with low temps
+            u = np.random.uniform(0, 1, 1)[0]
+            #print(f"Move to worse prob: {math.exp(delta/T)}")
+            if u < exp(delta/self.T):
+                return j
+            else:
+                return i
+
     @classmethod
     def accept(cls, i: Seeding, j: Seeding, extremity: float = 1) -> Seeding:
         p = (j.score()/i.score()) ** extremity
