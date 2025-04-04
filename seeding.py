@@ -92,7 +92,7 @@ class MetropolisHastingsSeedings:
         self.x0: Seeding = Seeding(Seeding.inverse_arrange(bracket_0()), self.W) if seed_real else Seeding.RandomSeeding(self.teams, self.W)
         self.X: list[Seeding] = [self.x0]
         self.T = 1000
-        self.alpha = 0.998#.999
+        self.alpha = 0.999#.999
         self.T_min = 1
     
     def _run_iter(self, anneal: bool = False):
