@@ -1,8 +1,11 @@
 from typing import Callable, Optional
-from functools import cache
 from copy import copy
 from math import prod, log2
 from random import choice
+from pickle import load, dump
+import os
+
+CACHE = "./cache.pkl"
 
 class Team:
     def __init__(self, name: str, seed: int, id: Optional[str] = None):
@@ -12,15 +15,32 @@ class Team:
     
     def __str__(self) -> str:
         return self.name
+    
+    def __hash__(self):
+        return hash(self.id)
 
 class WinMatrix:
     def __init__(self, prob_func: Callable[[Team, Team], float]):
         self.prob_func = prob_func
+        self.cache = {}
+        self.load()
 
-    @cache
-    def __getitem__(self, x: tuple[Team]) -> float:
+    def __getitem__(self, x: tuple[Team, Team]) -> float:
         x1, x2 = x
-        return self.prob_func(x1, x2)
+        if (i := (x1.id, x2.id)) not in self.cache:
+            self.cache[i] = result = self.prob_func(x1, x2)
+            return result
+        else:
+            return self.cache[i]
+    
+    def load(self):
+        if os.path.isfile(CACHE):
+            with open(CACHE, "rb") as doc:
+                self.cache = load(doc)
+    
+    def save(self):
+        with open(CACHE, "wb") as doc:
+            dump(self.cache, doc)
 
 class Bracket:
     def __init__(self, depth: int, teams: list[list[Team]], win_matrix: WinMatrix):
@@ -97,6 +117,12 @@ class Bracket:
         if self.depth == 0:
             return tuple()
         return tuple(zip(self.teams[::2], self.teams[1::2], self._next_level.teams)) + self._next_level.build_matchups()
+    
+    def find_depth(self, team: Team) -> int:
+        if self.depth == 0 or team not in self.teams:
+            return 0
+        else:
+            return 1 + self._next_level.find_depth(team)
     
     @classmethod
     def RandomBracket(cls, teams: list[Team], win_matrix: WinMatrix):

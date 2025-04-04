@@ -9,12 +9,18 @@ if __name__ == "__main__":
         mh = MetropolisHastingsBracket(teams, prob_func=make_prob_func(True), simulate_anneal=True)
         X = mh.run(1500)
         print(X[-1])
+        mh.W.save()
     else:
         from utils import make_prob_func, bracket_0
         from common import WinMatrix
         from seeding import MetropolisHastingsSeedings
-        mh = MetropolisHastingsSeedings(bracket_0(), win_matrix=WinMatrix(make_prob_func()))
-        X = mh.run(3000, anneal=True)#mh.run(100000)
+        try:
+            mh = MetropolisHastingsSeedings(bracket_0(), win_matrix=WinMatrix(make_prob_func()))
+            X = mh.run(4000, anneal=True)#mh.run(100000)
+        except KeyboardInterrupt:
+            pass
         with open("./seeding_results.pkl", "wb") as doc:
-            pickle.dump([i.prepare_pickle() for i in X], doc)
-        print(mh.compute_mode())
+            pickle.dump([i.prepare_pickle() for i in mh.X], doc)
+        print(mh.X[-1])#(mh.compute_mode())
+        print(mh.X[-1].mlb)
+        mh.W.save()
