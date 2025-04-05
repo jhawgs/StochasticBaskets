@@ -39,12 +39,14 @@ class MetropolisHastingsBracket:
                     self._run_iter()
         else:
             if verbose:
-                for _ in (pbar := tqdm(range(iters))):
+                #for _ in (pbar := tqdm(range(iters))):
+                while self.T < self.T_min
                     self._run_iter()
                     self.T = self.alpha * self.T
                     pbar.set_description_str("score: {}".format(self.X[-1].score()))
             else:
-                for _ in range(iters):
+                #for _ in range(iters):
+                while self.T < self.T_min
                     self._run_iter()
                     self.T = self.alpha * self.T
         return self.X
