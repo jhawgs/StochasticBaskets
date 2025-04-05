@@ -18,6 +18,7 @@ class MetropolisHastingsBracket:
         self.simulate_anneal = simulate_anneal
         if self.simulate_anneal:
             self.T = 500000
+            self.T_list = [self.T]
             self.alpha = 0.99
             self.T_min = 1
     
@@ -38,18 +39,35 @@ class MetropolisHastingsBracket:
                 for _ in range(iters):
                     self._run_iter()
         else:
-            if verbose:
-                #for _ in (pbar := tqdm(range(iters))):
-                while self.T < self.T_min
-                    self._run_iter()
-                    self.T = self.alpha * self.T
-                    pbar.set_description_str("score: {}".format(self.X[-1].score()))
-            else:
-                #for _ in range(iters):
-                while self.T < self.T_min
-                    self._run_iter()
-                    self.T = self.alpha * self.T
-        return self.X
+            T_dict = {
+                int(self.T_list[0]/2): -1,
+                int(self.T_list[0]/10): -1,
+                int(self.T_list[0]/1000): -1,
+                int(self.T_list[0]/100000): -1, 
+            }
+            while self.T > self.T_min:
+                self._run_iter()
+                self.T = self.alpha * self.T
+                self.T_list.append(self.T)
+
+                if self.T > int(self.T_list[0]/2):
+                    T_dict[int(self.T_list[0]/2)] = len(self.T_list)
+                if self.T > int(self.T_list[0]/10):
+                    T_dict[int(self.T_list[0]/10)] = len(self.T_list)
+                if self.T > int(self.T_list[0]/1000):
+                    T_dict[int(self.T_list[0]/1000)] = len(self.T_list)
+                if self.T > int(self.T_list[0]/100000):
+                    T_dict[int(self.T_list[0]/100000)] = len(self.T_list)
+
+        if not self.simulate_anneal:
+            return self.X
+        else:
+            return {
+                "X": self.X,
+                "T": self.T_list,
+                "T_dict": T_dict
+            }
+
     
     def compute_mode(self, burnin: int = 0) -> Bracket:
         mp = {}
