@@ -46,7 +46,9 @@ class Seeding:
             depths = np.array([self.mlb.find_depth(i) for i in self.teams])
             error = np.sum(np.square(expected_depth - depths))
             s -= error
-        s/= reps
+        s /= reps
+        if exponential_score:
+            s = exp(s)
         self._score = s
         #expected outcomes fails
         #matchups = self.find_maximimum_likelihood_bracket(iters=iters, verbose=verbose).build_matchups()
