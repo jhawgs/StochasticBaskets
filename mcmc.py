@@ -21,6 +21,7 @@ class MetropolisHastingsBracket:
             self.T_list = [self.T]
             self.alpha = 0.99
             self.T_min = 1
+            self.T_dict = {}
     
     def _run_iter(self):
         b = self.X[-1]
@@ -46,6 +47,7 @@ class MetropolisHastingsBracket:
                 int(self.T_list[0]/100000): -1, 
             }
             while self.T > self.T_min:
+                print(self.T)
                 self._run_iter()
                 self.T = self.alpha * self.T
                 self.T_list.append(self.T)
@@ -59,14 +61,7 @@ class MetropolisHastingsBracket:
                 if self.T > int(self.T_list[0]/100000):
                     T_dict[int(self.T_list[0]/100000)] = len(self.T_list)
 
-        if not self.simulate_anneal:
             return self.X
-        else:
-            return {
-                "X": self.X,
-                "T": self.T_list,
-                "T_dict": T_dict
-            }
 
     
     def compute_mode(self, burnin: int = 0) -> Bracket:
