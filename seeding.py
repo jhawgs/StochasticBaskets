@@ -37,7 +37,7 @@ class Seeding:
         self.mlb = mhb.run(iters=iters, verbose=verbose)[-1]
         return self.mlb
     
-    def score(self, iters: int = 1500, reps: int = 10, verbose: bool = False, exponential_score: bool = True) -> float:
+    def score(self, iters: int = 1500, reps: int = 10, verbose: bool = False, exponential_score: bool = False) -> float:
         if self._score is not None:
             return self._score
         s = 0
@@ -46,7 +46,9 @@ class Seeding:
             depths = np.array([self.mlb.find_depth(i) for i in self.teams])
             error = np.sum(np.square(expected_depth - depths))
             s -= error
-        s/= reps
+        s /= reps * 10
+        if exponential_score:
+            s = exp(s)
         self._score = s
         #expected outcomes fails
         #matchups = self.find_maximimum_likelihood_bracket(iters=iters, verbose=verbose).build_matchups()
