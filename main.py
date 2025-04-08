@@ -15,7 +15,7 @@ if __name__ == "__main__":
         from common import WinMatrix
         from seeding import MetropolisHastingsSeedings
         try:
-            mh = MetropolisHastingsSeedings(bracket_0(), win_matrix=WinMatrix(make_prob_func()))
+            mh = MetropolisHastingsSeedings(bracket_0(), win_matrix=WinMatrix(make_prob_func()), seed_real=True)
             X = mh.run(8000, anneal=True)#mh.run(100000)
         except KeyboardInterrupt:
             pass

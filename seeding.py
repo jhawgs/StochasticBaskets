@@ -17,6 +17,7 @@ class Seeding:
         self.win_matrix = win_matrix
         self.mlb = None
         self._score = None
+        self.dist = None
     
     def __str__(self) -> str:
         return "\n".join(map(lambda x: "(" + str(1 + x[0]//4) + ") " + x[1].name, enumerate(self.teams)))
@@ -37,25 +38,20 @@ class Seeding:
         self.mlb = mhb.run(iters=iters, verbose=verbose)[-1]
         return self.mlb
     
-    def score(self, iters: int = 1500, reps: int = 10, verbose: bool = False, exponential_score: bool = False) -> float:
+    def mean_variance(self, iters: int = 100000, verbose: bool = True) -> float:
+        mhb = MetropolisHastingsBracket(Seeding.arrange(self.teams), win_matrix=self.win_matrix, simulate_anneal=False)
+        self.dist = [-i.depth_error() for i in mhb.run(iters=iters, verbose=verbose)]
+        #print(np.mean(self.dist), np.var(self.dist)/12)
+        return np.mean(self.dist) - np.var(self.dist)/12
+    
+    def score(self, iters: int = 1000, reps: int = 20, verbose: bool = False, exponential_score: bool = False) -> float:
         if self._score is not None:
             return self._score
-        s = 0
+        self._score = 0
         for _ in range(reps):
-            self.find_maximimum_likelihood_bracket(iters=iters, verbose=verbose)
-            depths = np.array([self.mlb.find_depth(i) for i in self.teams])
-            error = np.sum(np.square(expected_depth - depths))
-            s -= error
-        s /= reps * 10
-        if exponential_score:
-            s = exp(s)
-        self._score = s
-        #expected outcomes fails
-        #matchups = self.find_maximimum_likelihood_bracket(iters=iters, verbose=verbose).build_matchups()
-        #expected_outcomes = len(list(filter(lambda x: min(self.seed[x[0]], self.seed[x[1]]) == self.seed[x[2]], matchups)))
-        #if exponential_score:
-        #    expected_outcomes = exp(expected_outcomes)
-        #self._score = expected_outcomes
+            self._score += self.mean_variance(iters=iters, verbose=verbose)
+            #print(self._score/(_ + 1))
+        self._score /= reps
         return self._score
     
     def random_transpose(self):
@@ -127,8 +123,9 @@ class MetropolisHastingsSeedings:
         return mp[list(_c.keys())[np.argmax(list(_c.values()))]]
     
     def anneal_accept(self, i: Seeding, j: Seeding, extremity: float = 1) -> Seeding:
-        self.T = self.alpha * self.T
+        self.T = max(self.alpha * self.T, 1e-50)
         delta = (j.score(exponential_score=False) - i.score(exponential_score=False))#p = (j.score()/i.score()) ** extremity
+        print(exp(delta/self.T), j.score(exponential_score=False), i.score(exponential_score=False))
         if delta > 0: #If j is better just send it
             #print(j._score, i._score)
             #print("send it")

@@ -4,6 +4,9 @@ from math import prod, log2
 from random import choice
 from pickle import load, dump
 import os
+import numpy as np
+bracket_idx_to_overall = {0: 0, 32: 1, 48: 2, 16: 3, 62: 4, 46: 5, 14: 6, 30: 7, 10: 8, 58: 9, 26: 10, 42: 11, 54: 12, 22: 13, 38: 14, 6: 15, 4: 16, 20: 17, 52: 18, 36: 19, 40: 20, 8: 21, 24: 22, 56: 23, 44: 24, 28: 25, 12: 26, 60: 27, 18: 28, 50: 29, 2: 30, 34: 31, 19: 32, 3: 33, 35: 34, 51: 35, 61: 36, 45: 37, 29: 38, 13: 39, 9: 40, 25: 41, 41: 42, 57: 43, 5: 44, 21: 45, 37: 46, 53: 47, 39: 48, 55: 49, 7: 50, 23: 51, 43: 52, 11: 53, 59: 54, 27: 55, 31: 56, 47: 57, 15: 58, 63: 59, 17: 60, 49: 61, 33: 62, 1: 63}
+expected_depth = np.array([6 - 0] + [6 - 1] + [6 - 2, 6 - 2] + [6 - 3, 6 - 3, 6 - 3, 6 - 3] + [6 - 4] * 8 + [6 - 5] * 16 + [6 - 6] * 32)
 
 CACHE = "./cache.pkl"
 
@@ -18,6 +21,9 @@ class Team:
     
     def __hash__(self):
         return hash(self.id)
+
+def inverse_arrange(teams: list[Team]) -> list[Team]:
+        return [teams[{v: k for k, v in bracket_idx_to_overall.items()}[i]] for i in range(64)]
 
 class WinMatrix:
     def __init__(self, prob_func: Callable[[Team, Team], float]):
@@ -53,6 +59,8 @@ class Bracket:
         else:
             self._next_level = None
         self.games = [g for i in range(depth) for g in [{"depth": i + 1, "idx": n} for n in range(int(2 ** i))]]
+        if self.depth == 6:
+            self.seed: dict[Team, int] = {t: n for n, t in enumerate(inverse_arrange(self.teams))}
     
     def __copy__(self):
         cls = self.__class__
@@ -117,6 +125,16 @@ class Bracket:
         if self.depth == 0:
             return tuple()
         return tuple(zip(self.teams[::2], self.teams[1::2], self._next_level.teams)) + self._next_level.build_matchups()
+    
+    def depth_error(self) -> int:
+        depths = np.array([self.find_depth(i) for i in inverse_arrange(self.teams)])
+        error = np.sum(np.square(expected_depth - depths))
+        return error
+
+    def count_expected(self) -> int:
+        matchups = self.build_matchups()
+        expected_outcomes = len(list(filter(lambda x: min(self.seed[x[0]], self.seed[x[1]]) == self.seed[x[2]], matchups)))
+        return expected_outcomes
     
     def find_depth(self, team: Team) -> int:
         if self.depth == 0 or team not in self.teams:

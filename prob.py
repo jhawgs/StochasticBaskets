@@ -24,6 +24,9 @@ def fit_models():
     with open("./lr.pkl", "wb") as doc:
         dump(lr, doc)
 
+def in_memory_rfc(data):
+    return RandomForestClassifier().fit(data.drop("favwin01", axis=1)[keys], data["favwin01"])
+
 def load_model(rfc=True):
     if rfc:
         with open("./rfc.pkl", "rb") as doc:
