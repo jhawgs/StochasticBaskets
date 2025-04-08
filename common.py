@@ -143,6 +143,15 @@ class Bracket:
             return 1 + self._next_level.find_depth(team)
     
     @classmethod
+    def NaiveBracket(cls, teams: list[Team], win_matrix: WinMatrix):
+        depth = int(log2(len(teams)))
+        assert 2 ** depth == len(teams), "arg `teams` must have a length of a power 2 but has length {}".format(len(teams))
+        _teams = [teams]
+        while len(_teams[-1]) > 1:
+            _teams.append([_teams[-1][n*2:n*2+2][win_matrix[_teams[-1][n*2], _teams[-1][n*2+1]] < .5] for n in range(int(len(_teams[-1])/2))])
+        return cls(depth, _teams, win_matrix)
+    
+    @classmethod
     def RandomBracket(cls, teams: list[Team], win_matrix: WinMatrix):
         depth = int(log2(len(teams)))
         assert 2 ** depth == len(teams), "arg `teams` must have a length of a power 2 but has length {}".format(len(teams))

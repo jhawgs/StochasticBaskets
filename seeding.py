@@ -1,9 +1,11 @@
 from random import sample
 from copy import copy
 from math import exp
+from functools import partial
 
 import numpy as np
 from tqdm import tqdm
+from joblib.parallel import delayed, Parallel
 
 from common import Team, WinMatrix, Bracket
 from mcmc import MetropolisHastingsBracket
@@ -42,21 +44,23 @@ class Seeding:
         mhb = MetropolisHastingsBracket(Seeding.arrange(self.teams), win_matrix=self.win_matrix, simulate_anneal=False)
         self.dist = [-i.depth_error() for i in mhb.run(iters=iters, verbose=verbose)]
         #print(np.mean(self.dist), np.var(self.dist)/12)
-        return np.mean(self.dist) - np.var(self.dist)/12
+        return np.mean(self.dist) - np.std(self.dist)#return np.mean(self.dist) - np.var(self.dist)/12
     
-    def score(self, iters: int = 1000, reps: int = 20, verbose: bool = False, exponential_score: bool = False) -> float:
+    def score(self, iters: int = 4000, reps: int = 9, verbose: bool = False, exponential_score: bool = False) -> float:
         if self._score is not None:
             return self._score
         self._score = 0
-        for _ in range(reps):
-            self._score += self.mean_variance(iters=iters, verbose=verbose)
+        scores = Parallel(n_jobs=-1)(delayed(partial(self.mean_variance, iters=iters, verbose=verbose))() for _ in range(reps))
+        self._score = sum(scores)
+        #for _ in range(reps):
+        #    self._score += self.mean_variance(iters=iters, verbose=verbose)
             #print(self._score/(_ + 1))
         self._score /= reps
         return self._score
     
-    def random_transpose(self):
+    def random_transpose(self, limit: bool = True):
         idx1 = sample(range(len(self.teams)), 1)[0]
-        idx2 = sample(range(len(self.teams)), 1)[0]
+        idx2 = sample(range(max(0, idx1 - 5), min(idx1 + 5, len(self.teams))), 1)[0] if limit else sample(range(len(self.teams)), 1)[0]
         t1 = self.teams[idx1]
         t2 = self.teams[idx2]
         self.teams[idx1] = t2
@@ -89,7 +93,7 @@ class MetropolisHastingsSeedings:
         self.W = win_matrix
         self.x0: Seeding = Seeding(Seeding.inverse_arrange(bracket_0()), self.W) if seed_real else Seeding.RandomSeeding(self.teams, self.W)
         self.X: list[Seeding] = [self.x0]
-        self.T = 1000
+        self.T = 5#1#5#10#00
         self.alpha = 0.999#.999
         self.T_min = 1
     
