@@ -7,6 +7,7 @@ import os
 import numpy as np
 bracket_idx_to_overall = {0: 0, 32: 1, 48: 2, 16: 3, 62: 4, 46: 5, 14: 6, 30: 7, 10: 8, 58: 9, 26: 10, 42: 11, 54: 12, 22: 13, 38: 14, 6: 15, 4: 16, 20: 17, 52: 18, 36: 19, 40: 20, 8: 21, 24: 22, 56: 23, 44: 24, 28: 25, 12: 26, 60: 27, 18: 28, 50: 29, 2: 30, 34: 31, 19: 32, 3: 33, 35: 34, 51: 35, 61: 36, 45: 37, 29: 38, 13: 39, 9: 40, 25: 41, 41: 42, 57: 43, 5: 44, 21: 45, 37: 46, 53: 47, 39: 48, 55: 49, 7: 50, 23: 51, 43: 52, 11: 53, 59: 54, 27: 55, 31: 56, 47: 57, 15: 58, 63: 59, 17: 60, 49: 61, 33: 62, 1: 63}
 expected_depth = np.array([6 - 0] + [6 - 1] + [6 - 2, 6 - 2] + [6 - 3, 6 - 3, 6 - 3, 6 - 3] + [6 - 4] * 8 + [6 - 5] * 16 + [6 - 6] * 32)
+actual_depth = np.array([2, 2, 1, 0, 2, 3, 0, 1, 1, 3, 3, 2, 6, 2, 1, 0, 5, 1, 1, 4, 0, 3, 1, 1, 0, 2, 1, 1, 0, 2, 1, 0, 4, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1, 0, 0, 0])
 
 CACHE = "./cache.pkl"
 
@@ -24,6 +25,25 @@ class Team:
 
 def inverse_arrange(teams: list[Team]) -> list[Team]:
         return [teams[{v: k for k, v in bracket_idx_to_overall.items()}[i]] for i in range(64)]
+
+b0 = [
+    Team("Alabama", 1), Team("Texas A&M-Corpus Christi", 16), Team("Maryland", 8), Team("West Virginia", 9),
+    Team("San Diego State", 5), Team("College of Charleston", 12), Team("Virginia", 4), Team("Furman", 13),
+    Team("Creighton", 6), Team("NC State", 11), Team("Baylor", 3), Team("UC Santa Barbara", 14),
+    Team("Missouri", 7), Team("Utah State", 10), Team("Arizona", 2), Team("Princeton", 15),
+    Team("Purdue", 1), Team("Fairleigh Dickinson", 16), Team("Memphis", 8), Team("Florida Atlantic", 9),
+    Team("Duke", 5), Team("Oral Roberts", 12), Team("Tennessee", 4), Team("Louisiana", 13),
+    Team("Kentucky", 6), Team("Providence", 11), Team("Kansas State", 3), Team("Montana State", 14),
+    Team("Michigan State", 7), Team("Southern California", 10), Team("Marquette", 2), Team("Vermont", 15),
+    Team("Houston", 1), Team("Northern Kentucky", 16), Team("Iowa", 8), Team("Auburn", 9),
+    Team("Miami (FL)", 5), Team("Drake", 12), Team("Indiana", 4), Team("Kent State", 13),
+    Team("Iowa State", 6), Team("Pittsburgh", 11), Team("Xavier", 3), Team("Kennesaw State", 14),
+    Team("Texas A&M", 7), Team("Penn State", 10), Team("Texas", 2), Team("Colgate", 15),
+    Team("Kansas", 1), Team("Howard", 16), Team("Arkansas", 8), Team("Illinois", 9),
+    Team("Saint Mary's (CA)", 5), Team("Virginia Commonwealth", 12), Team("Connecticut", 4), Team("Iona", 13),
+    Team("TCU", 6), Team("Arizona State", 11), Team("Gonzaga", 3), Team("Grand Canyon", 14),
+    Team("Northwestern", 7), Team("Boise State", 10), Team("UCLA", 2), Team("UNC Asheville", 15)
+]
 
 class WinMatrix:
     def __init__(self, prob_func: Callable[[Team, Team], float]):
@@ -141,6 +161,12 @@ class Bracket:
             return 0
         else:
             return 1 + self._next_level.find_depth(team)
+    
+    def outcome_error(self, seeding) -> int:
+        d = {k.id: v for k, v in seeding.seed.items()}
+        expected_depths = np.array([expected_depth[d[i.id]] for i in inverse_arrange(b0)])
+        error = np.sum(np.square(actual_depth - expected_depths))
+        return error
     
     @classmethod
     def NaiveBracket(cls, teams: list[Team], win_matrix: WinMatrix):

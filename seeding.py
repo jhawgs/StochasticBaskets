@@ -9,7 +9,7 @@ from joblib.parallel import delayed, Parallel
 
 from common import Team, WinMatrix, Bracket
 from mcmc import MetropolisHastingsBracket
-from utils import bracket_idx_to_overall, expected_depth, bracket_0
+from utils import bracket_idx_to_overall, expected_depth, bracket_0, naive_bracket
 
 class Seeding:
     def __init__(self, teams: list[Team], win_matrix: WinMatrix):
@@ -46,7 +46,7 @@ class Seeding:
         #print(np.mean(self.dist), np.var(self.dist)/12)
         return np.mean(self.dist) - np.std(self.dist)#return np.mean(self.dist) - np.var(self.dist)/12
     
-    def score(self, iters: int = 4000, reps: int = 9, verbose: bool = False, exponential_score: bool = False) -> float:
+    def score(self, iters: int = 6000, reps: int = 9, verbose: bool = False, exponential_score: bool = False) -> float:
         if self._score is not None:
             return self._score
         self._score = 0
@@ -91,10 +91,10 @@ class MetropolisHastingsSeedings:
     def __init__(self, teams: list[Team], win_matrix: WinMatrix, seed_real: bool = False):
         self.teams = teams
         self.W = win_matrix
-        self.x0: Seeding = Seeding(Seeding.inverse_arrange(bracket_0()), self.W) if seed_real else Seeding.RandomSeeding(self.teams, self.W)
+        self.x0: Seeding = Seeding(Seeding.inverse_arrange(naive_bracket()), self.W)#Seeding(Seeding.inverse_arrange(bracket_0()), self.W) if seed_real else Seeding.RandomSeeding(self.teams, self.W)
         self.X: list[Seeding] = [self.x0]
-        self.T = 5#1#5#10#00
-        self.alpha = 0.999#.999
+        self.T = .2#.1#5#10#00
+        self.alpha = 1.#0.999#.999
         self.T_min = 1
     
     def _run_iter(self, anneal: bool = False):
@@ -128,6 +128,14 @@ class MetropolisHastingsSeedings:
     
     def anneal_accept(self, i: Seeding, j: Seeding, extremity: float = 1) -> Seeding:
         self.T = max(self.alpha * self.T, 1e-50)
+        if len(self.X) > 500:
+            if sample([True, False], counts=[1, 500], k=1)[0]:
+                if sample([True, False], counts=[20, 80], k=1)[0]:
+                    return sample(self.X, k=1)[0]
+                else:
+                    for _ in range(sample(range(10), k=1)[0]):
+                        i.random_transpose()
+                    return i.random_transpose()
         delta = (j.score(exponential_score=False) - i.score(exponential_score=False))#p = (j.score()/i.score()) ** extremity
         print(exp(delta/self.T), j.score(exponential_score=False), i.score(exponential_score=False))
         if delta > 0: #If j is better just send it
