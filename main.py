@@ -31,7 +31,7 @@ if __name__ == "__main__":
         W = WinMatrix(make_prob_func())
         try:
             mh = MetropolisHastingsSeedings(bracket_0(), win_matrix=W, seed_real=True)
-            with open("./seeding_optim.pkl", "wb") as doc:
+            with open("./seeding_optim.pkl", "rb") as doc:
                 mh.X = pickle.load(doc)
             for i in mh.X:
                 i.win_matrix = W
