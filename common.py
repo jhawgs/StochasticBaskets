@@ -162,6 +162,11 @@ class Bracket:
         else:
             return 1 + self._next_level.find_depth(team)
     
+    def bracket_error(self) -> int:
+        bracket_depths = np.array([self.find_depth(list(filter(lambda x: x.id == i.id, self.teams))[0]) for i in inverse_arrange(b0)])
+        error = np.sum(np.square(actual_depth - bracket_depths))
+        return error
+    
     def outcome_error(self, seeding) -> int:
         d = {k.id: v for k, v in seeding.seed.items()}
         expected_depths = np.array([expected_depth[d[i.id]] for i in inverse_arrange(b0)])
