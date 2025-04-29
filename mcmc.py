@@ -8,7 +8,7 @@ import math
 from common import Team, Bracket, WinMatrix
 
 class MetropolisHastingsBracket:
-    def __init__(self, teams: list[Team], prob_func: Optional[Callable[[Team, Team], float]] = None, win_matrix: Optional[WinMatrix] = None, simulate_anneal: bool = False):
+    def __init__(self, teams: list[Team], prob_func: Optional[Callable[[Team, Team], float]] = None, win_matrix: Optional[WinMatrix] = None, simulate_anneal: bool = False, T: int = None, alpha: float = None):
         self.teams = teams
         self.prob_func = prob_func
         assert (prob_func is not None or win_matrix is not None) and not (prob_func is not None and win_matrix is not None)
@@ -17,8 +17,8 @@ class MetropolisHastingsBracket:
         self.X: list[Bracket] = [self.seed]
         self.simulate_anneal = simulate_anneal
         if self.simulate_anneal:
-            self.T = 500000
-            self.alpha = 0.99
+            self.T = T or 500000
+            self.alpha = alpha or 0.99
             self.T_min = 1
     
     def _run_iter(self):

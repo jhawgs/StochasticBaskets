@@ -93,25 +93,27 @@ class MetropolisHastingsSeedings:
         self.W = win_matrix
         self.x0: Seeding = Seeding(Seeding.inverse_arrange(naive_bracket()), self.W)#Seeding(Seeding.inverse_arrange(bracket_0()), self.W) if seed_real else Seeding.RandomSeeding(self.teams, self.W)
         self.X: list[Seeding] = [self.x0]
-        self.T = .2#.1#5#10#00
-        self.alpha = 1.#0.999#.999
+        self.T = 10#.1#5#10#00
+        self.alpha = .9995#0.999#.999
         self.T_min = 1
     
-    def _run_iter(self, anneal: bool = False):
+    def _run_iter(self, anneal: bool = False, real_anneal: bool = False):
         b = self.X[-1]
-        if anneal:
+        if real_anneal:
+            self.X.append(self.real_anneal_accept(copy(b), copy(b).random_transpose()))
+        elif anneal:
             self.X.append(self.anneal_accept(copy(b), copy(b).random_transpose()))
         else:
             self.X.append(MetropolisHastingsSeedings.accept(copy(b), copy(b).random_transpose()))
     
-    def run(self, iters: int = 1000, verbose: bool = True, anneal: bool = False):
+    def run(self, iters: int = 1000, verbose: bool = True, anneal: bool = False, real_anneal: bool = False):
         if verbose:
             for _ in (pbar := tqdm(range(iters))):
-                self._run_iter(anneal=anneal)
+                self._run_iter(anneal=anneal, real_anneal=real_anneal)
                 pbar.set_description_str("score: {}".format(self.X[-1].score()))
         else:
             for _ in range(iters):
-                self._run_iter(anneal=anneal)
+                self._run_iter(anneal=anneal, real_anneal=real_anneal)
         return self.X
     
     def compute_mode(self, burnin: int = 0) -> Seeding:
@@ -126,6 +128,25 @@ class MetropolisHastingsSeedings:
                 _c[h] = 1
         return mp[list(_c.keys())[np.argmax(list(_c.values()))]]
     
+    def real_anneal_accept(self, i: Seeding, j: Seeding, extremity: float = 1) -> Seeding:
+        self.T = max(self.alpha * self.T, 1e-50)
+        delta = (j.score(exponential_score=False) - i.score(exponential_score=False))#p = (j.score()/i.score()) ** extremity
+        print(exp(delta/self.T), j.score(exponential_score=False), i.score(exponential_score=False))
+        if delta > 0: #If j is better just send it
+            #print(j._score, i._score)
+            #print("send it")
+            return j
+        else: #Otherwise send j with high temps and don't with low temps
+            u = np.random.uniform(0, 1, 1)[0]
+            #print(f"Move to worse prob: {math.exp(delta/T)}")
+            #print(exp(delta/self.T))
+            if u < exp(delta/self.T):
+                #print("accept")
+                return j
+            else:
+                #print("reject")
+                return i
+
     def anneal_accept(self, i: Seeding, j: Seeding, extremity: float = 1) -> Seeding:
         self.T = max(self.alpha * self.T, 1e-50)
         if len(self.X) > 500:
