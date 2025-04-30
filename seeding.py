@@ -88,13 +88,13 @@ class Seeding:
         return cls(sample(teams, len(teams)), win_matrix)
 
 class MetropolisHastingsSeedings:
-    def __init__(self, teams: list[Team], win_matrix: WinMatrix, seed_real: bool = False):
+    def __init__(self, teams: list[Team], win_matrix: WinMatrix, seed_real: bool = False, T: float = None, alpha: float = None):
         self.teams = teams
         self.W = win_matrix
         self.x0: Seeding = Seeding(Seeding.inverse_arrange(naive_bracket()), self.W)#Seeding(Seeding.inverse_arrange(bracket_0()), self.W) if seed_real else Seeding.RandomSeeding(self.teams, self.W)
         self.X: list[Seeding] = [self.x0]
-        self.T = 10#.1#5#10#00
-        self.alpha = .9995#0.999#.999
+        self.T = T or 10#try 5#5#10#00
+        self.alpha = alpha or .9995#try .9997#0.999#.999
         self.T_min = 1
     
     def _run_iter(self, anneal: bool = False, real_anneal: bool = False):
