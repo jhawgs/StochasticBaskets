@@ -41,11 +41,11 @@ if __name__ == "__main__":
         from common import WinMatrix
         from seeding import MetropolisHastingsSeedings
         try:
-            mh = MetropolisHastingsSeedings(bracket_0(), win_matrix=WinMatrix(make_prob_func()), T=5, alpha=.9997)
+            mh = MetropolisHastingsSeedings(bracket_0(), win_matrix=WinMatrix(make_prob_func()), T=1.697, alpha=.9999)#.9997)
             X = mh.run(20000, real_anneal=True)#mh.run(100000)
         except KeyboardInterrupt:
             pass
-        with open("./seeding_anneal.pkl", "wb") as doc:
+        with open("./seeding_anneal3.pkl", "wb") as doc:
             pickle.dump([i.prepare_pickle() for i in mh.X], doc)
         print(mh.X[-1])#(mh.compute_mode())
         print(mh.X[-1].mlb)
